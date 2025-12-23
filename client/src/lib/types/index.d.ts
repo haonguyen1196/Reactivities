@@ -1,4 +1,4 @@
-type Activities = {
+type Activity = {
     id: string;
     title: string;
     date: string;
