@@ -1,3 +1,4 @@
+using Application.Core;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,5 +17,14 @@ namespace API.Controllers
         // lúc đầu _mediator = null sẽ lấy IMediator từ DI container và gán vào _mediator
         // khi _mediator có dữ liệu rồi thì gọi Mediator từ class derive sẽ trả ra _mediator
         // nếu lấy DI trả về null thì sẽ throw ra lỗi
+
+        protected ActionResult HandleResult<T>(Result<T> result)
+        {
+            if (!result.IsSuccess && result.Code == 404) return NotFound();
+
+            if (result.IsSuccess && result.Value != null) return Ok(result.Value);
+
+            return BadRequest(result.Error);
+        }
     }
 }

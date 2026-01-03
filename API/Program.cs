@@ -1,25 +1,37 @@
+using API.Middleware;
 using Application.Activities.Queries;
+using Application.Activities.Validators;
 using Application.Core;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container.S
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
-builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
-//tìm tất cả IRequestHandler trong assembly có GetActivityList.Handler và đăng ký chúng vào DI
-// chỉ cần đăng ký 1 class trong 1 assembly, các class khác cùng assembly không cần đăng ký
+builder.Services.AddMediatR(x =>
+{
+    //tìm tất cả IRequestHandler trong assembly có GetActivityList.Handler và đăng ký chúng vào DI
+    // chỉ cần đăng ký 1 class trong 1 assembly, các class khác cùng assembly không cần đăng ký
+    x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
+    //add validation middleware của mediator
+    x.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>(); // đk validator vào DI container
+builder.Services.AddTransient<ExceptionMiddleware>(); // đk middleware exception vào di container
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMiddleware>(); // sử dụng middleware trong mỗi request
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
 app.MapControllers();
