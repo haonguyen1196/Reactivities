@@ -1,13 +1,5 @@
 import { z } from "zod";
-
-// hàm tái sử dụng logic validate input phải required
-const requiredString = (fieldName: string) =>
-    z
-        .string()
-        .optional()
-        .refine((val) => val !== undefined && val.trim() !== "", {
-            message: `${fieldName} is required`,
-        });
+import { requiredString } from "../util/util";
 
 export const activitySchema = z.object({
     title: requiredString("Title"),

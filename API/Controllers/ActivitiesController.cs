@@ -5,6 +5,7 @@ using Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application.Activities.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers;
 
@@ -16,6 +17,7 @@ public class ActivitiesController() : BaseApiController
         return await Mediator.Send(new GetActivityList.Query()); // gửi đi 1 query
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<ActionResult<Activity>> GetActivityDetail(string id)
     {
